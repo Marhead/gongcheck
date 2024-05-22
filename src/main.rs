@@ -73,14 +73,11 @@ pub fn app() -> Html {
     html! {
         <main class="container">
             <Header />
-
             <HelloWorldTag />
-
             <form class="row" onsubmit={greet}>
                 <input id="greet-input" ref={greet_input_ref} placeholder="Enter a name..." />
                 <button type="submit">{"Greet"}</button>
             </form>
-
             <p><b>{ &*greet_msg }</b></p>
             <Editor />
             // <MarkdownEditor />
