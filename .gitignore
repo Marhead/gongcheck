@@ -24,4 +24,5 @@ dist/
 dist/
 lottie.js
 binaries/
-postcss-config.js
+postcss.config.js
+tailwind.config.js
