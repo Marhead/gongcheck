@@ -71,17 +71,27 @@ pub fn app() -> Html {
     };
 
     html! {
-        <main class="container">
-            <Header />
-            <HelloWorldTag />
-            <form class="row" onsubmit={greet}>
-                <input id="greet-input" ref={greet_input_ref} placeholder="Enter a name..." />
-                <button type="submit">{"Greet"}</button>
-            </form>
-            <p><b>{ &*greet_msg }</b></p>
-            <Editor />
-            // <MarkdownEditor />
-        </main>
+        <div class="flex h-screen">
+            <aside class="w-1/4 bg-gray-900 text-white p-4">
+                <h1 class="text-2xl font-bold mb-4">{"Obsidian-like Editor"}</h1>
+                <nav>
+                    <ul>
+                        <li class="mb-2"><a href="#" class="text-gray-300 hover:text-white">{"Home"}</a></li>
+                        <li class="mb-2"><a href="#" class="text-gray-300 hover:text-white">{"Notes"}</a></li>
+                        <li class="mb-2"><a href="#" class="text-gray-300 hover:text-white">{"Settings"}</a></li>
+                    </ul>
+                </nav>
+            </aside>
+            <main class="flex-1 bg-gray-100 p-4">
+                <div class="flex mb-4">
+                    <input type="text" class="flex-1 p-2 border border-gray-300 rounded" placeholder="Search..."/>
+                    <button class="ml-2 p-2 bg-blue-500 text-white rounded">{"New Note"}</button>
+                </div>
+                <div class="bg-white p-4 border border-gray-300 rounded">
+                    <textarea class="w-full h-full border-none focus:outline-none" placeholder="Write your note here..."></textarea>
+                </div>
+            </main>
+        </div>
     }
 }
 
