@@ -34,13 +34,13 @@ fn main() {
         .add_item(quit);
 
     tauri::Builder::default()
-        .setup(|app| {
-            let window = WindowBuilder::new(app, "main", WindowUrl::default())
-                .title("Gongcheck")
-                .decorations(false)
-                .build()?;
-            Ok(())
-        })
+        // .setup(|app| {
+        //     let window = WindowBuilder::new(app, "main", WindowUrl::default())
+        //         .title("Gongcheck")
+        //         .decorations(false)
+        //         .build()?;
+        //     Ok(())
+        // })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

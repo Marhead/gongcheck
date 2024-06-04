@@ -8,7 +8,7 @@ pub struct SidebarPanelsProps {
 #[function_component(SidebarPanels)]
 pub fn sidebar_panels(props: &SidebarPanelsProps) -> Html {
     html! {
-        <div class="flex-1 p-4">
+        <div class="flex-1 pr-2">
             <h1 class="text-2xl font-bold mb-4">{"Gongcheck"}</h1>
             <nav>
                 <ul>

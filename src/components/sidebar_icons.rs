@@ -24,8 +24,8 @@ pub fn sidebar_icons(props: &SidebarIconsProps) -> Html {
     };
 
     html! {
-        <div class="flex-col border-r-4 border-sky-500">
-            <div class="pb-8">
+        <div class="flex-col border-4 border-amber-200">
+            <div>
                 <button onclick={change_view(SidebarView::Home)}>
                     <img src="public/icons/icons8-home-24-white.svg" class="w-12 h-12" alt="Home"/>
                 </button>
