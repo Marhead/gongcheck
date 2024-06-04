@@ -18,7 +18,7 @@ pub fn workspace() -> Html{
     html!{
         <div class="flex h-screen">
             <Sidebar filenames={filenames} view={sidebar_view.clone()}/>
-            <main class="flex-1 bg-gray-100 p-4">
+            <main class="flex-1 bg-wookd-100 p-4">
                 <Title />
                 <MarkdownEditor />
             </main>

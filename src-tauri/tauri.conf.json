@@ -1,7 +1,7 @@
 {
   "build": {
-    "beforeDevCommand": "trunk serve",
-    "beforeBuildCommand": "trunk build",
+    "beforeDevCommand": "npm run build:css && trunk serve",
+    "beforeBuildCommand": "npm run build:css && trunk build",
     "devPath": "http://127.0.0.1:1420",
     "distDir": "../dist",
     "withGlobalTauri": true

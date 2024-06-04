@@ -10,8 +10,9 @@ pub struct SidebarProps {
 #[function_component(Sidebar)]
 pub fn sidebar(props: &SidebarProps) -> Html {
     html! {
-        <aside class="flex w-1/4 bg-gray-900 text-white p-2">
+        <aside class="flex w-1/4 bg-gray-900 text-white">
             <SidebarIcons view={props.view.clone()} />
+            <div class="border-r-2 border-[#AF8F6F]" />
             <SidebarPanels filenames={props.filenames.clone()} />
         </aside>
     }

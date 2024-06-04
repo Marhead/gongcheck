@@ -24,31 +24,50 @@ pub fn sidebar_icons(props: &SidebarIconsProps) -> Html {
     };
 
     html! {
-        <div class="flex-col border-4 border-amber-200">
+        <div class="flex flex-col bg-wookd-400 p-2 justify-between">
             <div>
-                <button onclick={change_view(SidebarView::Home)}>
-                    <img src="public/icons/icons8-home-24-white.svg" class="w-12 h-12" alt="Home"/>
-                </button>
+                <div>
+                    <button onclick={change_view(SidebarView::Home)}>
+                        <img src="public/icons/home.svg" class="w-6 h-6" alt="Home"/>
+                    </button>
+                </div>
+                <div>
+                    <button onclick={change_view(SidebarView::Notes)}>
+                        <img src="public/icons/search.svg" class="w-6 h-6" alt="Search" />
+                    </button>
+                </div>
+                <div>
+                    <button onclick={change_view(SidebarView::Settings)}>
+                        <img src="public/icons/files.svg" class="w-6 h-6" alt="Files" />
+                    </button>
+                </div>
+                <div>
+                    <button onclick={change_view(SidebarView::File)}>
+                        <img src="public/icons/partition.svg" class="w-6 h-6" alt="Partition" />
+                    </button>
+                </div>
+                <div>
+                    <button onclick={change_view(SidebarView::User)}>
+                        <img src="public/icons/picture.svg" class="w-6 h-6" alt="Picture" />
+                    </button>
+                </div>
             </div>
             <div>
-                <button onclick={change_view(SidebarView::Notes)}>
-                    <img src="public/icons/icons8-home-24-white.svg" class="w-12 h-12" alt="Notes" />
-                </button>
-            </div>
-            <div>
-                <button onclick={change_view(SidebarView::Settings)}>
-                    <img src="public/icons/icons8-home-24-white.svg" class="w-12 h-12" alt="Settings" />
-                </button>
-            </div>
-            <div>
-                <button onclick={change_view(SidebarView::File)}>
-                    <img src="public/icons/icons8-home-24-white.svg" class="w-12 h-12" alt="File" />
-                </button>
-            </div>
-            <div>
-                <button onclick={change_view(SidebarView::User)}>
-                    <img src="public/icons/icons8-home-24-white.svg" class="w-12 h-12" alt="User" />
-                </button>
+                <div>
+                    <button>
+                        <img src="public/icons/printer.svg" class="w-6 h-6" alt="Printer"/>
+                    </button>
+                </div>
+                <div>
+                    <button onclick={change_view(SidebarView::User)}>
+                        <img src="public/icons/user.svg" class="w-6 h-6" alt="User" />
+                    </button>
+                </div>
+                <div>
+                    <button onclick={change_view(SidebarView::User)}>
+                        <img src="public/icons/settings.svg" class="w-6 h-6" alt="Settings" />
+                    </button>
+                </div>
             </div>
         </div>
     }

@@ -20,7 +20,7 @@ struct GreetArgs<'a> {
 
 #[function_component(App)]
 pub fn app() -> Html {
-    let editor_state = use_state(|| "".to_string());
+    // let editor_state = use_state(|| "".to_string());
 
     // Here is the code that I am trying to customize titlebar.
     // {
