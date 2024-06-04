@@ -6,11 +6,12 @@ use wasm_bindgen::prelude::*;
 use yew::prelude::*;
 
 use pages::workspace::Workspace;
+use components::titlebar::TitleBar;
 
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
-    async fn invoke(cmd: &str, args: JsValue) -> JsValue;
+    async fn listen(event: &str, handler: &Closure<dyn FnMut(String)>) -> JsValue;
 }
 
 #[derive(Serialize, Deserialize)]
@@ -67,8 +68,34 @@ pub fn app() -> Html {
     //     })
     // };
 
+    let editor_state = use_state(|| "".to_string());
+
+    {
+        let editor_state = editor_state.clone();
+        use_effect_with_deps(move |_| {
+            let editor_state = editor_state.clone();
+            let closure = Closure::wrap(Box::new(move |payload: String| {
+                let action = payload.split(':').next().unwrap();
+                match action {
+                    "new" => editor_state.set("".to_string()),
+                    "undo" => { /* Handle undo in editor */ },
+                    "redo" => { /* Handle redo in editor */ },
+                    _ => {}
+                }
+            }) as Box<dyn FnMut(String)>);
+
+            let _ = listen("tauri://menu", &closure);
+            closure.forget();
+
+            || {}
+        }, ());
+    }
+
     html! {
-        <Workspace />
+        <div>
+            <TitleBar />
+            <Workspace />
+        </div>
     }
 }
 
