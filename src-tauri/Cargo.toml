@@ -8,10 +8,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1", features = [] }
+tauri-build = { version = "1.4.0", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = [ "clipboard-write-text", "shell-open"] }
+tauri = { version = "1.4.0", features = [ "clipboard-write-text", "shell-open"] }
 serde = { workspace = true }
 log = { workspace = true }
 walkdir = { workspace = true }
@@ -19,8 +19,7 @@ thiserror = { workspace = true }
 dirs = { workspace = true }
 config = { workspace = true }
 error = { workspace = true }
-markdown = { workspace = true }
-serde_json = "1"
+md = { workspace = true }
 
 window-vibrancy = "0.3.2"
 window-shadows = "0.2.1"
