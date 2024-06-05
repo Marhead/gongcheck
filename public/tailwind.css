@@ -543,9 +543,6 @@ video {
 .rounded {
   border-radius: 0.25rem;
 }
-.border {
-  border-width: 1px;
-}
 .border-r-2 {
   border-right-width: 2px;
 }
@@ -555,10 +552,6 @@ video {
 .border-\[\#AF8F6F\] {
   --tw-border-opacity: 1;
   border-color: rgb(175 143 111 / var(--tw-border-opacity));
-}
-.border-wookd-300 {
-  --tw-border-opacity: 1;
-  border-color: rgb(116 81 45 / var(--tw-border-opacity));
 }
 .bg-\[\#74512D\] {
   --tw-bg-opacity: 1;

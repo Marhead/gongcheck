@@ -9,6 +9,20 @@
 //     format!("Hello, {}! You've been greeted from Rust!", name)
 // }
 
+#[derive(serde::Deserialize)]
+struct MyCommand {
+    filename: String,
+}
+
+#[tauri::command]
+fn create_file(window: tauri::Window, command: MyCommand) -> Result<(), String> {
+    use std::fs::File;
+    match File::create(&command.filename) {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
 fn main() {
 
     // let quit = CustomMenuItem::new("quit".to_string(), "Quit");
@@ -41,6 +55,7 @@ fn main() {
         //         .build()?;
         //     Ok(())
         // })
+        .invoke_handler(tauri::generate_handler![create_file])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
