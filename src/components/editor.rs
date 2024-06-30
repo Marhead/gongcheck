@@ -1,64 +1,53 @@
 use yew::prelude::*;
-use pulldown_cmark::{html, Parser};
+use gongcheck_editor::*;
+use wasm_bindgen::JsValue;
+use web_sys::Element;
+use std::rc::Rc;
+use std::cell::RefCell;
 
-pub struct Editor {
-    input: String,
-    output: String,
-}
+#[function_component(EditorComponent)]
+pub fn editor_component() -> Html {
+    let editor_ref = use_node_ref();
+    let preview_ref = use_node_ref();
+    let editor = use_state(|| None::<Rc<RefCell<WebEditor>>>);
 
-pub enum Msg {
-    UpdateInput(String),
-}
+    let onclick = {
+        let editor = editor.clone();
+        let editor_ref = editor_ref.clone();
+        let preview_ref = preview_ref.clone();
 
-impl Component for Editor {
-    type Message = Msg;
-    type Properties = ();
-
-    fn create(ctx: &Context<Self>) -> Self {
-        Self {
-            input: String::new(),
-            output: String::new(),
-        }
-    }
-
-    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
-        match msg {
-            Msg::UpdateInput(input) => {
-                self.output = Self::render_markdown(&input);
-                self.input = input;
-                true
+        Callback::from(move |_| {
+            if editor.is_some() {
+                return;
             }
-        }
-    }
 
-    fn view(&self, ctx: &Context<Self>) -> Html {
-        html! {
-            <div>
-                <textarea
-                    value={self.input.clone()}
-                    oninput={ctx.link().callback(|e: InputEvent| {
-                        let input: web_sys::HtmlTextAreaElement = e.target_unchecked_into();
-                        Msg::UpdateInput(input.value())
-                    })}
-                />
-                <div>
-                    <h3>{ "Preview" }</h3>
-                    <div dangerously_set_inner_html={self.output.clone()} />
-                </div>
-            </div>
-        }
+            if let (Some(editor_div), Some(preview_div)) = (editor_ref.cast::<Element>(), preview_ref.cast::<Element>()) {
+                match WebEditor::new(&format!("#{}", editor_div.id()), &format!("#{}", preview_div.id())) {
+                    Ok(web_editor) => {
+                        let web_editor = Rc::new(RefCell::new(web_editor));
+                        if let Err(e) = web_editor.borrow().set_content("# Hello, Markdown!\n\nThis is a **test**.") {
+                            web_sys::console::error_1(&format!("Failed to set content: {:?}", e).into());
+                        }
+                        editor.set(Some(web_editor));
+                    },
+                    Err(e) => {
+                        web_sys::console::error_1(&format!("Failed to initialize editor: {:?}", JsValue::from(e)).into());
+                    }
+                }
+            } else {
+                web_sys::console::error_1(&"Editor or preview element not found".into());
+            }
+        })
+    };
+
+    html! {
+        <div>
+            <h1>{"GongCheck Editor"}</h1>
+            <div ref={editor_ref} id="editor"></div>
+            <div ref={preview_ref} id="preview"></div>
+            <button {onclick}>
+                {"Initialize Editor"}
+            </button>
+        </div>
     }
 }
-
-impl Editor {
-    fn render_markdown(input: &str) -> String {
-        let parser = Parser::new(input);
-        let mut html_output = String::new();
-        html::push_html(&mut html_output, parser);
-        html_output
-    }
-}
-
-// fn main() {
-//     yew::start_app::<Editor>();
-// }
