@@ -1,5 +1,5 @@
 use yew::prelude::*;
-use gongcheck_editor::*;
+use gongcheck_editor::WebEditor;
 use wasm_bindgen::JsValue;
 use web_sys::Element;
 use std::rc::Rc;

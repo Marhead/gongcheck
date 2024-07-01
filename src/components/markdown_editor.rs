@@ -1,6 +1,6 @@
 use yew::prelude::*;
 use wasm_bindgen::JsCast;
-use editor::
+use crate::components::EditorComponent;
 
 #[function_component(MarkdownEditor)]
 pub fn markdown_editor() -> Html {

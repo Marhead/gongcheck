@@ -2,12 +2,6 @@ use crate::components::{Title, MarkdownEditor, Sidebar, SidebarView};
 
 use serde::{Deserialize, Serialize};
 use yew::prelude::*;
-use yew::services::ConsoleService;
-use yew::services::fetch::FetchTask;
-use yew::format::Nothing;
-use yew::services::fetch::Request;
-use yew::services::fetch::Method;
-use yew::services::FetchService;
 use wasm_bindgen::prelude::*;
 
 
@@ -23,12 +17,12 @@ pub fn workspace() -> Html{
     // Ensure use_state is declared here
     let sidebar_view = use_state(|| SidebarView::Home);
 
-    let create_file = Callback::from(move |_| {
-        let window = web_sys::window().expect("no global `window` exists");
-        let tauri = window.get("tauri").expect("tauri not found");
-        let command = JsValue::from_serde(&MyCommand { filename: "untitled.md".to_string() }).expect("failed to serialize command");
-        tauri.call_method_with_arguments("invoke", &[JsValue::from_str("create_file"), command]).expect("failed to invoke command");
-    });
+    // let create_file = Callback::from(move |_| {
+    //     let window = web_sys::window().expect("no global `window` exists");
+    //     let tauri = window.get("tauri").expect("tauri not found");
+    //     let command = JsValue::from_serde(&MyCommand { filename: "untitled.md".to_string() }).expect("failed to serialize command");
+    //     tauri.call_method_with_arguments("invoke", &[JsValue::from_str("create_file"), command]).expect("failed to invoke command");
+    // });
 
     html!{
         <div class="flex h-screen">
