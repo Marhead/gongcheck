@@ -1,4 +1,5 @@
 use yew::prelude::*;
+use yew::use_effect;
 use gongcheck_editor::WebEditor;
 use wasm_bindgen::JsValue;
 use web_sys::Element;
@@ -11,12 +12,12 @@ pub fn editor_component() -> Html {
     let preview_ref = use_node_ref();
     let editor = use_state(|| None::<Rc<RefCell<WebEditor>>>);
 
-    let onclick = {
+    {
         let editor = editor.clone();
         let editor_ref = editor_ref.clone();
         let preview_ref = preview_ref.clone();
 
-        Callback::from(move |_| {
+        use_effect(move || {
             if editor.is_some() {
                 return;
             }
@@ -37,7 +38,7 @@ pub fn editor_component() -> Html {
             } else {
                 web_sys::console::error_1(&"Editor or preview element not found".into());
             }
-        })
+        });
     };
 
     html! {
@@ -45,9 +46,6 @@ pub fn editor_component() -> Html {
             <h1>{"GongCheck Editor"}</h1>
             <div ref={editor_ref} id="editor"></div>
             <div ref={preview_ref} id="preview"></div>
-            <button {onclick}>
-                {"Initialize Editor"}
-            </button>
         </div>
     }
 }
