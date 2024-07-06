@@ -3,6 +3,7 @@
 
 // use tauri::{CustomMenuItem, Submenu, Menu};
 mod commands;
+use commands::*;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 // #[tauri::command]
@@ -18,7 +19,7 @@ struct MyCommand {
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            commands::select_directory,
+            select_directory,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
