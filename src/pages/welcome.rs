@@ -12,30 +12,53 @@ struct DirectoryResponse {
     path: Option<String>,
 }
 
+/* 
+    Old version of is_tauri function
+    This function checks if the window object has a __TAURI__ object
+    and if the __TAURI__ object has an invoke function
+*/
 // fn is_tauri() -> bool {
 //     window()
 //         .and_then(|win| js_sys::Reflect::get(&win, &"__TAURI__".into()).ok())
 //         .is_some()
 // }
 
+// TODO:Mac에서 안돌아감
+// fn is_tauri() -> bool {
+//     let window = match window() {
+//         Some(win) => win,
+//         None => return false, // No window object, definitely not Tauri
+//     };
+
+//     // Check for __TAURI__ object
+//     if js_sys::Reflect::has(&window, &"__TAURI__".into()).unwrap_or(false) {
+//         // Further verify by checking for Tauri-specific function
+//         if let Ok(tauri) = js_sys::Reflect::get(&window, &"__TAURI__".into()) {
+//             if let Ok(tauri_obj) = tauri.dyn_into::<js_sys::Object>() {
+//                 if js_sys::Reflect::has(&tauri_obj, &"invoke".into()).unwrap_or(false) {
+//                     // Try to get the invoke function
+//                     if let Ok(invoke_val) = js_sys::Reflect::get(&tauri_obj, &"invoke".into()) {
+//                         // Check if it's actually a function
+//                         return invoke_val.is_function();
+//                     }
+//                 }
+//             }
+//         }
+//     }
+
+//     false
+// }
+
 fn is_tauri() -> bool {
     let window = match window() {
         Some(win) => win,
-        None => return false, // No window object, definitely not Tauri
+        None => return false,
     };
 
-    // Check for __TAURI__ object
-    if js_sys::Reflect::has(&window, &"__TAURI__".into()).unwrap_or(false) {
-        // Further verify by checking for Tauri-specific function
-        if let Ok(tauri) = js_sys::Reflect::get(&window, &"__TAURI__".into()) {
-            if let Ok(tauri_obj) = tauri.dyn_into::<js_sys::Object>() {
-                if js_sys::Reflect::has(&tauri_obj, &"invoke".into()).unwrap_or(false) {
-                    // Try to get the invoke function
-                    if let Ok(invoke_val) = js_sys::Reflect::get(&tauri_obj, &"invoke".into()) {
-                        // Check if it's actually a function
-                        return invoke_val.is_function();
-                    }
-                }
+    if let Ok(tauri) = js_sys::Reflect::get(&window, &"__TAURI__".into()) {
+        if let Ok(tauri_obj) = tauri.dyn_into::<js_sys::Object>() {
+            if let Ok(invoke) = js_sys::Reflect::get(&tauri_obj, &"invoke".into()) {
+                return invoke.is_function();
             }
         }
     }
