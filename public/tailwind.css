@@ -537,6 +537,9 @@ video {
 .rounded {
   border-radius: 0.25rem;
 }
+.border-2 {
+  border-width: 2px;
+}
 .border-r-2 {
   border-right-width: 2px;
 }

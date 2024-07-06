@@ -1,6 +1,7 @@
 use yew::prelude::*;
 use serde::Deserialize;
 use wasm_bindgen_futures::spawn_local;
+use wasm_bindgen::{JsValue, JsCast};
 
 #[derive(Deserialize)]
 struct DirectoryResponse {
@@ -32,6 +33,7 @@ pub fn welcome() -> Html {
                     &JsValue::NULL,
                 ).unwrap();
 
+                let promise = promise.dyn_into::<js_sys::Promise>().unwrap();
                 let response = wasm_bindgen_futures::JsFuture::from(promise).await.unwrap();
                 let dir_response: DirectoryResponse = serde_wasm_bindgen::from_value(response).unwrap();
 
@@ -46,7 +48,7 @@ pub fn welcome() -> Html {
         let working_dir = working_dir.clone();
         Callback::from(move |_| {
             if let Some(dir) = (*working_dir).clone() {
-                log::info!("Selected working directory: {}", dir);
+                web_sys::console::info_1(&JsValue::from_str(&format!("Selected working directory: {}", dir)));
                 // You might want to navigate to the main app page here
             }
         })

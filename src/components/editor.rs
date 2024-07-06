@@ -44,8 +44,8 @@ pub fn editor_component() -> Html {
     html! {
         <div>
             <h1>{"GongCheck Editor"}</h1>
-            <div ref={editor_ref} id="editor" class="b"></div>
-            <div ref={preview_ref} id="preview"></div>
+            <div ref={editor_ref} id="editor" class="border-2 border-rose-500"></div>
+            <div ref={preview_ref} id="preview" class="border-2 border-sky-500"></div>
         </div>
     }
 }

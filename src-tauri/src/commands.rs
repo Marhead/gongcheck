@@ -1,5 +1,4 @@
 use std::path::PathBuf;
-use tauri::Manager;
 use tauri::api::dialog;
 
 #[tauri::command]
@@ -8,12 +7,8 @@ pub fn select_directory() -> Option<PathBuf> {
         .set_directory("~")
         .pick_folder();
 
-    match file_dialog {
-        Ok(Some(path)) => Some(path),
-        _ => None,
-    }
+    file_dialog
 }
-
 // #[tauri::command]
 // fn create_file(window: tauri::Window, command: MyCommand) -> Result<(), String> {
 //     use std::fs::File;
