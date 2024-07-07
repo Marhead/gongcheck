@@ -23,6 +23,7 @@ struct DirectoryResponse {
 //         .is_some()
 // }
 
+
 // TODO:Mac에서 안돌아감
 // fn is_tauri() -> bool {
 //     let window = match window() {
