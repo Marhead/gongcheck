@@ -21,7 +21,6 @@ dist/
 .idea/
 .vscode/
 *.iml
-dist/
 lottie.js
 binaries/
 postcss.config.js
