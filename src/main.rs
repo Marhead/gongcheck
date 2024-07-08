@@ -45,11 +45,8 @@ pub fn app() -> Html {
     //     }
     // }
 
-    let root_path = std::env::current_dir().unwrap();
-    let root_path_str = root_path.to_str().unwrap();
-
     html! {
-        <Workspace root_path={root_path_str} />
+        <Workspace root_path={"/NewWorld"} />
     }
 }
 

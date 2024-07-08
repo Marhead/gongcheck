@@ -1,33 +1,32 @@
+use _SidebarProps::labels;
 use yew::prelude::*;
 use crate::components::{SidebarView};
 
-// #[derive(Properties, PartialEq)]
-// pub struct SidebarProps {
-//     pub filenames: Vec<String>,
-//     pub view: UseStateHandle<SidebarView>,
-// }
+#[derive(Properties, PartialEq)]
+pub struct SidebarProps {
+    pub labels: Vec<String>,
+    pub sidebar_load: Callback<String>
+}
 
 #[function_component(Sidebar)]
-pub fn sidebar() -> Html {
-    let labels = vec![
-        "Overview",
-        "Stories",
-        "Notes",
-        "Characters",
-        "Organizations",
-        "Cultures",
-        "Species",
-        "Locations",
-        "Discoveries",
-        "Relations",
-        "Items",
-        "Images"];
+pub fn sidebar(props: &SidebarProps) -> Html {
+    // let buttons = labels.iter().enumerate().map(|(i, label)| {
+    //     let cloned_label = label.to_string(); // Clone the label variable
+    //     html! {
+    //         <button onclick={Callback::from(move |_| {
+    //             web_sys::console::log_1(&format!("Clicked {}", cloned_label).into());
+    //         })} class="p-2">
+    //             { label }
+    //         </button>
+    //     }
+    // });
 
-    let buttons = labels.iter().enumerate().map(|(i, label)| {
-        let cloned_label = label.to_string(); // Clone the label variable
+    let buttons = props.labels.iter().enumerate().map(|(i, label)| {
+        let cloned_label = label.clone(); // Use clone here
+        let sidebar_load = props.sidebar_load.clone();
         html! {
             <button onclick={Callback::from(move |_| {
-                web_sys::console::log_1(&format!("Clicked {}", cloned_label).into());
+                sidebar_load.emit(cloned_label.clone());
             })} class="p-2">
                 { label }
             </button>
