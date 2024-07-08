@@ -37,14 +37,14 @@ pub fn workspace(props: &RootPathProps) -> Html{
     };
 
     html!{
-        <div class="flex h-screen">
-            <Sidebar {sidebar_load} labels={labels.clone()}/>
-            <main>
+        <div class="flex h-screen w-full">
+            <Sidebar {sidebar_load} labels={labels.clone()} root_path={props.root_path.clone()}/>
+            <main class="flex w-full m-2">
                 // <Title />
                 // <MarkdownEditor />
                 {
                     match current_page.as_str() {
-                        "Overview" => html! { <Overview /> },
+                        "Overview" => html! { <Overview labels={labels.clone()}/> },
                         "Stories" => html! { <Story /> },
                         "Notes" => html! { <Note /> },
                         "Characters" => html! { <Character /> },

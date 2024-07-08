@@ -4,6 +4,7 @@ use crate::components::{SidebarView};
 
 #[derive(Properties, PartialEq)]
 pub struct SidebarProps {
+    pub root_path: String,
     pub labels: Vec<String>,
     pub sidebar_load: Callback<String>
 }
@@ -35,7 +36,7 @@ pub fn sidebar(props: &SidebarProps) -> Html {
 
     html! {
         <div class="flex flex-col w-48">
-            <div class="p-4 text-center text-2xl font-bold">{ "WorldName" }</div>
+            <div class="p-4 text-center text-2xl font-bold">{ props.root_path.clone() }</div>
             { for buttons }
         </div>
     }

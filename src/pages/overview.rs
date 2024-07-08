@@ -1,11 +1,17 @@
 use yew::prelude::*;
+use crate::components::overview::*;
+
+#[derive(Properties, PartialEq)]
+pub struct OverviewProps {
+    pub labels: Vec<String>,
+}
 
 #[function_component(Overview)]
-pub fn overview() -> Html {
+pub fn overview(props: &OverviewProps) -> Html {
+    let labels = props.labels.clone();
     html! {
-        <div>
-            <h1>{ "Overview" }</h1>
-            <p>{ "This is the overview page" }</p>
+        <div class="flex flex-col w-full">
+            <OverviewNavigator />
         </div>
     }
 }

@@ -501,6 +501,9 @@ video {
   --tw-contain-paint:  ;
   --tw-contain-style:  ;
 }
+.m-2 {
+  margin: 0.5rem;
+}
 .mb-4 {
   margin-bottom: 1rem;
 }
@@ -521,6 +524,9 @@ video {
 }
 .w-6 {
   width: 1.5rem;
+}
+.w-full {
+  width: 100%;
 }
 .flex-1 {
   flex: 1 1 0%;
