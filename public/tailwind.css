@@ -504,17 +504,32 @@ video {
 .m-2 {
   margin: 0.5rem;
 }
+.m-4 {
+  margin: 1rem;
+}
 .mb-4 {
   margin-bottom: 1rem;
 }
 .ml-2 {
   margin-left: 0.5rem;
 }
+.ml-4 {
+  margin-left: 1rem;
+}
+.mr-2 {
+  margin-right: 0.5rem;
+}
+.mt-4 {
+  margin-top: 1rem;
+}
 .flex {
   display: flex;
 }
 .h-6 {
   height: 1.5rem;
+}
+.h-64 {
+  height: 16rem;
 }
 .h-screen {
   height: 100vh;
@@ -525,14 +540,23 @@ video {
 .w-6 {
   width: 1.5rem;
 }
+.w-96 {
+  width: 24rem;
+}
 .w-full {
   width: 100%;
+}
+.w-screen {
+  width: 100vw;
 }
 .flex-1 {
   flex: 1 1 0%;
 }
 .flex-col {
   flex-direction: column;
+}
+.justify-center {
+  justify-content: center;
 }
 .justify-between {
   justify-content: space-between;

@@ -11,11 +11,6 @@ use commands::*;
 //     format!("Hello, {}! You've been greeted from Rust!", name)
 // }
 
-#[derive(serde::Deserialize)]
-struct MyCommand {
-    filename: String,
-}
-
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![

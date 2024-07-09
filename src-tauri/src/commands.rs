@@ -1,5 +1,4 @@
 use std::path::PathBuf;
-use tauri::api::dialog;
 
 // TODO: Check for Mac
 // #[tauri::command]

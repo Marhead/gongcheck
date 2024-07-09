@@ -1,9 +1,7 @@
-use serde::{Deserialize, Serialize};
 use yew::prelude::*;
-use wasm_bindgen::prelude::*;
 
-use crate::components::{Title, MarkdownEditor, Sidebar, SidebarView};
-use crate::pages::*;
+use crate::components::Sidebar;
+use crate::pages::{Overview, Story, Note, Character, Organization, Culture, Specy, Place, Discovery, Relation, Item, Image};
 
 #[derive(Properties, PartialEq)]
 pub struct RootPathProps {
@@ -51,7 +49,7 @@ pub fn workspace(props: &RootPathProps) -> Html{
                         "Organizations" => html! { <Organization /> },
                         "Cultures" => html! { <Culture /> },
                         "Species" => html! { <Specy /> },
-                        "Locations" => html! { <Location /> },
+                        "Locations" => html! { <Place /> },
                         "Discoveries" => html! { <Discovery /> },
                         "Relations" => html! { <Relation /> },
                         "Items" => html! { <Item /> },

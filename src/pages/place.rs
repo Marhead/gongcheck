@@ -1,10 +1,10 @@
 use yew::prelude::*;
 
-#[function_component(Location)]
-pub fn location() -> Html {
+#[function_component(Place)]
+pub fn place() -> Html {
     html! {
         <div>
-            <h1>{ "Location" }</h1>
+            <h1>{ "Place" }</h1>
             <p>{ "This is the location page" }</p>
         </div>
     }

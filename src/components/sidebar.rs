@@ -1,6 +1,4 @@
-use _SidebarProps::labels;
 use yew::prelude::*;
-use crate::components::{SidebarView};
 
 #[derive(Properties, PartialEq)]
 pub struct SidebarProps {
@@ -22,7 +20,7 @@ pub fn sidebar(props: &SidebarProps) -> Html {
     //     }
     // });
 
-    let buttons = props.labels.iter().enumerate().map(|(i, label)| {
+    let buttons = props.labels.iter().enumerate().map(|(_i, label)| {
         let cloned_label = label.clone(); // Use clone here
         let sidebar_load = props.sidebar_load.clone();
         html! {

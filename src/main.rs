@@ -1,12 +1,11 @@
 pub mod pages;
 pub mod components;
 
-use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 use yew::prelude::*;
+use yew_router::prelude::*;
 
 use pages::*;
-use web_sys::window;
 
 #[wasm_bindgen]
 extern "C" {
@@ -16,37 +15,19 @@ extern "C" {
     fn select_directory() -> JsValue;
 }
 
+fn switch(routes: Route) -> Html {
+    match routes {
+        Route::Welcome => html! { <Welcome /> },
+        Route::Workspace => html! { <Workspace root_path={"NewWorld"} /> },
+    }
+}
+
 #[function_component(App)]
 pub fn app() -> Html {
-    // let is_first = {
-    //     let window = window().expect("Should have a window");
-    //     let local_storage = window.local_storage().expect("Should have local storage").expect("Should be able to access local storage");
-    //     match local_storage.get_item("accessed_before").expect("Should be able to get item") {
-    //         None => true,
-    //         Some(_) => false,
-    //     }
-    // };
-
-    // let local_directory_set = {
-    //     false
-    // };
-
-    // if is_first || !local_directory_set {
-    //     let window = window().expect("should have a window");
-    //     let local_storage = window.local_storage().expect("should have local storage").expect("should be able to access local storage");
-    //     local_storage.set_item("accessed_before", "true").expect("should be able to set item");
-
-    //     html! {
-    //         <Welcome />
-    //     }
-    // } else {
-    //     html! {
-    //         <Workspace />
-    //     }
-    // }
-
     html! {
-        <Workspace root_path={"/NewWorld"} />
+        <BrowserRouter>
+            <Switch<Route> render={switch} /> // <- must be child of <BrowserRouter>
+        </BrowserRouter>
     }
 }
 

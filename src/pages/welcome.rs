@@ -1,11 +1,11 @@
 use yew::prelude::*;
-use serde::{Serialize, Deserialize};
+use serde::Deserialize;
 use wasm_bindgen_futures::spawn_local;
-use wasm_bindgen::prelude::*;
 use wasm_bindgen::{JsValue, JsCast};
 use web_sys::{window, console};
-use js_sys::{Object, Reflect, Promise};
-
+use js_sys::Reflect;
+use yew_router::prelude::*;
+use crate::Route;
 
 #[derive(Deserialize)]
 struct DirectoryResponse {
@@ -203,6 +203,7 @@ pub fn welcome() -> Html {
 
     let on_confirm = {
         let working_dir = working_dir.clone();
+        let navigator = use_navigator().unwrap();
         Callback::from(move |_| {
             if let Some(dir) = (*working_dir).clone() {
                 // Store the selected directory in local storage
@@ -213,36 +214,44 @@ pub fn welcome() -> Html {
                 }
                 web_sys::console::log_1(&format!("Selected working directory: {}", dir).into());
                 // You might want to navigate to the main app page here
+                // Navigate back to the Workspace page
+                navigator.push(&Route::Workspace);
             }
         })
     };
 
     html! {
-        <div class="welcome-page">
-            <h1>{"Welcome to GongCheck"}</h1>
-            <p>{"Please select a working directory to get started."}</p>
-            <button onclick={on_select_directory} class="border-4 border-rose-500">{"Select Directory"}</button>
-            {
-                if let Some(err) = (*error).clone() {
-                    html! {
-                        <p class="text-red-500">{err}</p>
+        <div class="w-screen h-screen flex flex-col justify-center">
+            <div class="flex justify-center">
+                <div class="w-96 h-64 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-center">{"Welcome to GongCheck"}</div>
+                        <div class="flex justify-center">{"Please select a working directory to get started."}</div>
+                    </div>
+                    <button onclick={on_select_directory} class="border-4 border-rose-500">{"Select Directory"}</button>
+                    {
+                        if let Some(err) = (*error).clone() {
+                            html! {
+                                <p class="text-red-500">{err}</p>
+                            }
+                        } else {
+                            html! {}
+                        }
                     }
-                } else {
-                    html! {}
-                }
-            }
-            {
-                if let Some(dir) = (*working_dir).clone() {
-                    html! {
-                        <>
-                            <p>{"Selected directory: "}{dir}</p>
-                            <button onclick={on_confirm}>{"Confirm"}</button>
-                        </>
+                    {
+                        if let Some(dir) = (*working_dir).clone() {
+                            html! {
+                                <div class="flex flex-col justify-center">
+                                    <div class="flex justify-center">{"Selected directory: "}{dir}</div>
+                                    <button onclick={on_confirm}>{"Confirm"}</button>
+                                </div>
+                            }
+                        } else {
+                            html! {}
+                        }
                     }
-                } else {
-                    html! {}
-                }
-            }
+                </div>
+            </div>
         </div>
     }
 }
