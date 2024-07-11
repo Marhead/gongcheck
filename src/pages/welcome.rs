@@ -1,5 +1,5 @@
 use yew::prelude::*;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use wasm_bindgen_futures::spawn_local;
 use wasm_bindgen::{JsValue, JsCast};
 use web_sys::{window, console};
@@ -31,23 +31,57 @@ fn is_tauri() -> bool {
 }
 
 async fn select_directory_tauri() -> Result<Option<String>, JsValue> {
+    // let window = window().ok_or_else(|| JsValue::from_str("Window object is not available"))?;
+    
+    // if !Reflect::has(&window, &"showDirectoryPicker".into())? {
+    //     return Err(JsValue::from_str("showDirectoryPicker is not supported in this environment"));
+    // }
+
+    // let picker = Reflect::get(&window, &"showDirectoryPicker".into())?
+    //     .dyn_into::<js_sys::Function>()?;
+
+    // let promise = picker.call0(&JsValue::NULL)?
+    //     .dyn_into::<Promise>()?;
+
+    // let handle = JsFuture::from(promise).await?;
+    
+    // let name = Reflect::get(&handle, &"name".into())?;
+    
+    // Ok(Some(name.as_string().unwrap_or_default()))
     let window = window().ok_or_else(|| JsValue::from_str("Window object is not available"))?;
     
-    if !Reflect::has(&window, &"showDirectoryPicker".into())? {
-        return Err(JsValue::from_str("showDirectoryPicker is not supported in this environment"));
+    // Try to use showDirectoryPicker if available
+    if Reflect::has(&window, &"showDirectoryPicker".into())? {
+        let picker = Reflect::get(&window, &"showDirectoryPicker".into())?
+            .dyn_into::<js_sys::Function>()?;
+
+        let promise = picker.call0(&JsValue::NULL)?
+            .dyn_into::<Promise>()?;
+
+        let handle = JsFuture::from(promise).await?;
+        
+        let name = Reflect::get(&handle, &"name".into())?;
+        
+        return Ok(Some(name.as_string().unwrap_or_default()));
     }
-
-    let picker = Reflect::get(&window, &"showDirectoryPicker".into())?
-        .dyn_into::<js_sys::Function>()?;
-
-    let promise = picker.call0(&JsValue::NULL)?
-        .dyn_into::<Promise>()?;
-
-    let handle = JsFuture::from(promise).await?;
     
-    let name = Reflect::get(&handle, &"name".into())?;
+    // Fallback to Tauri's native dialog
+    let tauri = Reflect::get(&window, &"__TAURI__".into())?;
+    let tauri_obj = tauri.dyn_into::<js_sys::Object>()?;
+    let invoke = Reflect::get(&tauri_obj, &"invoke".into())?;
+    let invoke_fn = invoke.dyn_into::<js_sys::Function>()?;
+
+    let promise = invoke_fn.call2(
+        &JsValue::NULL,
+        &"select_directory".into(),
+        &JsValue::NULL,
+    )?;
+
+    let promise = promise.dyn_into::<Promise>()?;
+    let response = JsFuture::from(promise).await?;
     
-    Ok(Some(name.as_string().unwrap_or_default()))
+    // Assuming the response is a string representing the selected directory path
+    Ok(response.as_string())
 }
 
 async fn select_directory_web() -> Result<Option<String>, JsValue> {
