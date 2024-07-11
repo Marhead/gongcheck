@@ -9,16 +9,6 @@ pub struct SidebarProps {
 
 #[function_component(Sidebar)]
 pub fn sidebar(props: &SidebarProps) -> Html {
-    // let buttons = labels.iter().enumerate().map(|(i, label)| {
-    //     let cloned_label = label.to_string(); // Clone the label variable
-    //     html! {
-    //         <button onclick={Callback::from(move |_| {
-    //             web_sys::console::log_1(&format!("Clicked {}", cloned_label).into());
-    //         })} class="p-2">
-    //             { label }
-    //         </button>
-    //     }
-    // });
 
     let buttons = props.labels.iter().enumerate().map(|(_i, label)| {
         let cloned_label = label.clone(); // Use clone here

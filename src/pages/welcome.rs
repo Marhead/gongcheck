@@ -1,54 +1,17 @@
 use yew::prelude::*;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use wasm_bindgen_futures::spawn_local;
 use wasm_bindgen::{JsValue, JsCast};
 use web_sys::{window, console};
-use js_sys::Reflect;
+use js_sys::{Reflect, Promise};
 use yew_router::prelude::*;
+use wasm_bindgen_futures::JsFuture;
 use crate::Route;
 
 #[derive(Deserialize)]
 struct DirectoryResponse {
     path: Option<String>,
 }
-
-/* 
-    Old version of is_tauri function
-    This function checks if the window object has a __TAURI__ object
-    and if the __TAURI__ object has an invoke function
-*/
-// fn is_tauri() -> bool {
-//     window()
-//         .and_then(|win| js_sys::Reflect::get(&win, &"__TAURI__".into()).ok())
-//         .is_some()
-// }
-
-
-// TODO:Mac에서 안돌아감
-// fn is_tauri() -> bool {
-//     let window = match window() {
-//         Some(win) => win,
-//         None => return false, // No window object, definitely not Tauri
-//     };
-
-//     // Check for __TAURI__ object
-//     if js_sys::Reflect::has(&window, &"__TAURI__".into()).unwrap_or(false) {
-//         // Further verify by checking for Tauri-specific function
-//         if let Ok(tauri) = js_sys::Reflect::get(&window, &"__TAURI__".into()) {
-//             if let Ok(tauri_obj) = tauri.dyn_into::<js_sys::Object>() {
-//                 if js_sys::Reflect::has(&tauri_obj, &"invoke".into()).unwrap_or(false) {
-//                     // Try to get the invoke function
-//                     if let Ok(invoke_val) = js_sys::Reflect::get(&tauri_obj, &"invoke".into()) {
-//                         // Check if it's actually a function
-//                         return invoke_val.is_function();
-//                     }
-//                 }
-//             }
-//         }
-//     }
-
-//     false
-// }
 
 fn is_tauri() -> bool {
     let window = match window() {
@@ -68,40 +31,24 @@ fn is_tauri() -> bool {
 }
 
 async fn select_directory_tauri() -> Result<Option<String>, JsValue> {
-    let window = window().unwrap();
-    let tauri = Reflect::get(&window, &"__TAURI__".into())?;
-    let tauri_obj = tauri.dyn_into::<js_sys::Object>()?;
-    let invoke = Reflect::get(&tauri_obj, &"invoke".into())?;
-    let invoke_fn = invoke.dyn_into::<js_sys::Function>()?;
+    let window = window().ok_or_else(|| JsValue::from_str("Window object is not available"))?;
+    
+    if !Reflect::has(&window, &"showDirectoryPicker".into())? {
+        return Err(JsValue::from_str("showDirectoryPicker is not supported in this environment"));
+    }
 
-    let promise = invoke_fn.call2(
-        &JsValue::NULL,
-        &"select_directory".into(),
-        &JsValue::NULL,
-    )?;
+    let picker = Reflect::get(&window, &"showDirectoryPicker".into())?
+        .dyn_into::<js_sys::Function>()?;
 
-    let promise = promise.dyn_into::<js_sys::Promise>()?;
-    let response = wasm_bindgen_futures::JsFuture::from(promise).await?;
-    let dir_response: DirectoryResponse = serde_wasm_bindgen::from_value(response)?;
+    let promise = picker.call0(&JsValue::NULL)?
+        .dyn_into::<Promise>()?;
 
-    Ok(dir_response.path)
+    let handle = JsFuture::from(promise).await?;
+    
+    let name = Reflect::get(&handle, &"name".into())?;
+    
+    Ok(Some(name.as_string().unwrap_or_default()))
 }
-
-// async fn select_directory_web() -> Result<Option<String>, JsValue> {
-//     console::log_1(&"Initiate select_directory_web method".into());
-//     let window = window().unwrap();
-//     let picker = Reflect::get(&window, &"showDirectoryPicker".into())?
-//         .dyn_into::<js_sys::Function>()?;
-
-//     let promise = picker.call0(&JsValue::NULL)?
-//         .dyn_into::<js_sys::Promise>()?;
-
-//     let handle = wasm_bindgen_futures::JsFuture::from(promise).await?;
-
-//     let name = Reflect::get(&handle, &"name".into())?;
-
-//     Ok(Some(name.as_string().unwrap_or_default()))
-// }
 
 async fn select_directory_web() -> Result<Option<String>, JsValue> {
     console::log_1(&"Entering select_directory_web".into());
@@ -150,29 +97,6 @@ async fn select_directory() -> Result<Option<String>, JsValue> {
 pub fn welcome() -> Html {
     let working_dir = use_state(|| None::<String>);
     let error = use_state(|| None::<String>);
-
-    // let on_select_directory = {
-    //     let working_dir = working_dir.clone();
-    //     let error = error.clone();
-    //     Callback::from(move |_| {
-    //         let working_dir = working_dir.clone();
-    //         let error = error.clone();
-    //         spawn_local(async move {
-    //             match select_directory().await {
-    //                 Ok(Some(path)) => {
-    //                     working_dir.set(Some(path));
-    //                     error.set(None);
-    //                 }
-    //                 Ok(None) => {
-    //                     error.set(Some("No directory selected".to_string()));
-    //                 }
-    //                 Err(e) => {
-    //                     error.set(Some(format!("Error selecting directory: {:?}", e)));
-    //                 }
-    //             }
-    //         });
-    //     })
-    // };
 
     let on_select_directory = {
         let working_dir = working_dir.clone();
