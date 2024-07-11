@@ -213,7 +213,7 @@ pub fn welcome() -> Html {
                     }
                 }
                 web_sys::console::log_1(&format!("Selected working directory: {}", dir).into());
-                // You might want to navigate to the main app page here
+                
                 // Navigate back to the Workspace page
                 navigator.push(&Route::Workspace);
             }
