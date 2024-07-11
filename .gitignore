@@ -25,3 +25,4 @@ lottie.js
 binaries/
 postcss.config.js
 tailwind.config.js
+dist/*
