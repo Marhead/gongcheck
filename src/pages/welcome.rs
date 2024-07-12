@@ -31,23 +31,6 @@ fn is_tauri() -> bool {
 }
 
 async fn select_directory_tauri() -> Result<Option<String>, JsValue> {
-    // let window = window().ok_or_else(|| JsValue::from_str("Window object is not available"))?;
-    
-    // if !Reflect::has(&window, &"showDirectoryPicker".into())? {
-    //     return Err(JsValue::from_str("showDirectoryPicker is not supported in this environment"));
-    // }
-
-    // let picker = Reflect::get(&window, &"showDirectoryPicker".into())?
-    //     .dyn_into::<js_sys::Function>()?;
-
-    // let promise = picker.call0(&JsValue::NULL)?
-    //     .dyn_into::<Promise>()?;
-
-    // let handle = JsFuture::from(promise).await?;
-    
-    // let name = Reflect::get(&handle, &"name".into())?;
-    
-    // Ok(Some(name.as_string().unwrap_or_default()))
     let window = window().ok_or_else(|| JsValue::from_str("Window object is not available"))?;
     
     // Try to use showDirectoryPicker if available
