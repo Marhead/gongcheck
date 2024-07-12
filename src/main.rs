@@ -4,8 +4,12 @@ pub mod components;
 use wasm_bindgen::prelude::*;
 use yew::prelude::*;
 use yew_router::prelude::*;
+use yewdux::prelude::*;
+use crate::pages::welcome::DirectoryStore;
 
-use pages::*;
+use pages::welcome::Welcome;
+use pages::workspace::Workspace;
+use pages::Route;
 
 #[wasm_bindgen]
 extern "C" {
@@ -15,10 +19,21 @@ extern "C" {
     fn select_directory() -> JsValue;
 }
 
+// Yewdux is only working with function components.
+// So make "Wrapper" for class components and return it.
+#[function_component(WorkspaceWrapper)]
+fn workspace_wrapper() -> Html {
+    let (store, _) = use_store::<DirectoryStore>();
+    
+    html! {
+        <Workspace root_path={store.path.clone()} />
+    }
+}
+
 fn switch(routes: Route) -> Html {
     match routes {
         Route::Welcome => html! { <Welcome /> },
-        Route::Workspace => html! { <Workspace root_path={"NewWorld"} /> },
+        Route::Workspace => html! { <WorkspaceWrapper /> },
     }
 }
 

@@ -1,16 +1,23 @@
 use yew::prelude::*;
-use serde::Deserialize;
+use yew_router::prelude::*;
+use yewdux::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 use wasm_bindgen::{JsValue, JsCast};
 use web_sys::{window, console};
 use js_sys::{Reflect, Promise};
-use yew_router::prelude::*;
 use wasm_bindgen_futures::JsFuture;
+use crate::utils::tauri_invoke::invoke_tauri_command;
 use crate::Route;
 
-#[derive(Deserialize)]
-struct DirectoryResponse {
-    path: Option<String>,
+#[derive(Default, Clone, PartialEq, Store)]
+pub struct DirectoryStore {
+    pub path: String,
+}
+
+pub fn set_path(path: String, dispatch: Dispatch<DirectoryStore>) {
+    dispatch.reduce_mut(move |store| {
+        store.path = path;
+    })
 }
 
 fn is_tauri() -> bool {
@@ -33,7 +40,7 @@ fn is_tauri() -> bool {
 async fn select_directory_tauri() -> Result<Option<String>, JsValue> {
     let window = window().ok_or_else(|| JsValue::from_str("Window object is not available"))?;
     
-    // Try to use showDirectoryPicker if available
+    // Try to use showDirectoryPicker if available. Windows & Web
     if Reflect::has(&window, &"showDirectoryPicker".into())? {
         let picker = Reflect::get(&window, &"showDirectoryPicker".into())?
             .dyn_into::<js_sys::Function>()?;
@@ -48,23 +55,27 @@ async fn select_directory_tauri() -> Result<Option<String>, JsValue> {
         return Ok(Some(name.as_string().unwrap_or_default()));
     }
     
-    // Fallback to Tauri's native dialog
-    let tauri = Reflect::get(&window, &"__TAURI__".into())?;
-    let tauri_obj = tauri.dyn_into::<js_sys::Object>()?;
-    let invoke = Reflect::get(&tauri_obj, &"invoke".into())?;
-    let invoke_fn = invoke.dyn_into::<js_sys::Function>()?;
+    // Fallback to Tauri's native dialog. Mac OS
+    match tauri_invoke::invoke_tauri_command("select_directory", &()).await {
+        Ok(response) => Ok(response.as_string()),
+        Err(e) => Err(JsValue::from_str(&format!("Failed to select directory: {}", e))),
+    }
+    // let tauri = Reflect::get(&window, &"__TAURI__".into())?;
+    // let tauri_obj = tauri.dyn_into::<js_sys::Object>()?;
+    // let invoke = Reflect::get(&tauri_obj, &"invoke".into())?;
+    // let invoke_fn = invoke.dyn_into::<js_sys::Function>()?;
 
-    let promise = invoke_fn.call2(
-        &JsValue::NULL,
-        &"select_directory".into(),
-        &JsValue::NULL,
-    )?;
+    // let promise = invoke_fn.call2(
+    //     &JsValue::NULL,
+    //     &"select_directory".into(),
+    //     &JsValue::NULL,
+    // )?;
 
-    let promise = promise.dyn_into::<Promise>()?;
-    let response = JsFuture::from(promise).await?;
+    // let promise = promise.dyn_into::<Promise>()?;
+    // let response = JsFuture::from(promise).await?;
     
-    // Assuming the response is a string representing the selected directory path
-    Ok(response.as_string())
+    // // Assuming the response is a string representing the selected directory path
+    // Ok(response.as_string())
 }
 
 async fn select_directory_web() -> Result<Option<String>, JsValue> {
@@ -100,12 +111,9 @@ async fn select_directory_web() -> Result<Option<String>, JsValue> {
 }
 
 async fn select_directory() -> Result<Option<String>, JsValue> {
-    console::log_1(&"Initiate select_directory method".into());
     if is_tauri() {
-        console::log_1(&"Using Tauri".into());
         select_directory_tauri().await
     } else {
-        console::log_1(&"Using Web".into());
         select_directory_web().await
     }
 }
@@ -114,6 +122,7 @@ async fn select_directory() -> Result<Option<String>, JsValue> {
 pub fn welcome() -> Html {
     let working_dir = use_state(|| None::<String>);
     let error = use_state(|| None::<String>);
+    let (store, dispatch) = use_store::<DirectoryStore>();
 
     let on_select_directory = {
         let working_dir = working_dir.clone();
@@ -153,7 +162,10 @@ pub fn welcome() -> Html {
                         let _ = local_storage.set_item("working_directory", &dir);
                     }
                 }
-                web_sys::console::log_1(&format!("Selected working directory: {}", dir).into());
+                let dispatch = dispatch.clone();
+                set_path(dir, dispatch);
+
+                // web_sys::console::log_1(&format!("Selected working directory: {}", dir).into());
                 
                 // Navigate back to the Workspace page
                 navigator.push(&Route::Workspace);
