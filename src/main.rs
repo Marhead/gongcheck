@@ -1,10 +1,11 @@
 pub mod pages;
 pub mod components;
+pub mod utils;
 
 use wasm_bindgen::prelude::*;
 use yew::prelude::*;
 use yew_router::prelude::*;
-use yewdux::prelude::*;
+use yewdux::{prelude::*, store};
 use crate::pages::welcome::DirectoryStore;
 
 use pages::welcome::Welcome;
@@ -25,8 +26,14 @@ extern "C" {
 fn workspace_wrapper() -> Html {
     let (store, _) = use_store::<DirectoryStore>();
     
+    let root_path = if store.path.starts_with("/") {
+        store.path.split("/").last().unwrap_or("").to_string()
+    } else {
+        store.path.clone()
+    };
+
     html! {
-        <Workspace root_path={store.path.clone()} />
+        <Workspace root_path={root_path} />
     }
 }
 

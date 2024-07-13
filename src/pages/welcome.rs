@@ -56,9 +56,9 @@ async fn select_directory_tauri() -> Result<Option<String>, JsValue> {
     }
     
     // Fallback to Tauri's native dialog. Mac OS
-    match tauri_invoke::invoke_tauri_command("select_directory", &()).await {
+    match invoke_tauri_command("select_directory", &()).await {
         Ok(response) => Ok(response.as_string()),
-        Err(e) => Err(JsValue::from_str(&format!("Failed to select directory: {}", e))),
+        Err(e) => Err(JsValue::from_str(&format!("Failed to select directory: {:?}", e))),
     }
     // let tauri = Reflect::get(&window, &"__TAURI__".into())?;
     // let tauri_obj = tauri.dyn_into::<js_sys::Object>()?;
