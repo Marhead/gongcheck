@@ -5,7 +5,7 @@ pub mod utils;
 use wasm_bindgen::prelude::*;
 use yew::prelude::*;
 use yew_router::prelude::*;
-use yewdux::{prelude::*, store};
+use yewdux::prelude::*;
 use crate::pages::welcome::DirectoryStore;
 
 use pages::welcome::Welcome;
@@ -18,6 +18,9 @@ extern "C" {
 
     #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
     fn select_directory() -> JsValue;
+
+    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
+    fn create_init_file(folder_name: JsValue) -> JsValue;
 }
 
 // Yewdux is only working with function components.

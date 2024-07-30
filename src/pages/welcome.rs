@@ -6,12 +6,18 @@ use wasm_bindgen::{JsValue, JsCast};
 use web_sys::{window, console};
 use js_sys::{Reflect, Promise};
 use wasm_bindgen_futures::JsFuture;
-use crate::utils::tauri_invoke::invoke_tauri_command;
+use serde::Serialize;
+use crate::utils::tauri_invoke::*;
 use crate::Route;
 
 #[derive(Default, Clone, PartialEq, Store)]
 pub struct DirectoryStore {
     pub path: String,
+}
+
+#[derive(Serialize)]
+struct CreateInitFileParams {
+    folder_name: String,
 }
 
 pub fn set_path(path: String, dispatch: Dispatch<DirectoryStore>) {
@@ -56,26 +62,10 @@ async fn select_directory_tauri() -> Result<Option<String>, JsValue> {
     }
     
     // Fallback to Tauri's native dialog. Mac OS
-    match invoke_tauri_command("select_directory", &()).await {
+    match invoke_tauri_command_async("select_directory", &()).await {
         Ok(response) => Ok(response.as_string()),
         Err(e) => Err(JsValue::from_str(&format!("Failed to select directory: {:?}", e))),
     }
-    // let tauri = Reflect::get(&window, &"__TAURI__".into())?;
-    // let tauri_obj = tauri.dyn_into::<js_sys::Object>()?;
-    // let invoke = Reflect::get(&tauri_obj, &"invoke".into())?;
-    // let invoke_fn = invoke.dyn_into::<js_sys::Function>()?;
-
-    // let promise = invoke_fn.call2(
-    //     &JsValue::NULL,
-    //     &"select_directory".into(),
-    //     &JsValue::NULL,
-    // )?;
-
-    // let promise = promise.dyn_into::<Promise>()?;
-    // let response = JsFuture::from(promise).await?;
-    
-    // // Assuming the response is a string representing the selected directory path
-    // Ok(response.as_string())
 }
 
 async fn select_directory_web() -> Result<Option<String>, JsValue> {
@@ -122,7 +112,7 @@ async fn select_directory() -> Result<Option<String>, JsValue> {
 pub fn welcome() -> Html {
     let working_dir = use_state(|| None::<String>);
     let error = use_state(|| None::<String>);
-    let (store, dispatch) = use_store::<DirectoryStore>();
+    let (_store, dispatch) = use_store::<DirectoryStore>();
 
     let on_select_directory = {
         let working_dir = working_dir.clone();
@@ -154,22 +144,40 @@ pub fn welcome() -> Html {
     let on_confirm = {
         let working_dir = working_dir.clone();
         let navigator = use_navigator().unwrap();
-        Callback::from(move |_| {
-            if let Some(dir) = (*working_dir).clone() {
-                // Store the selected directory in local storage
-                if let Some(window) = window() {
-                    if let Ok(Some(local_storage)) = window.local_storage() {
-                        let _ = local_storage.set_item("working_directory", &dir);
-                    }
-                }
-                let dispatch = dispatch.clone();
-                set_path(dir, dispatch);
+        let dispatch = dispatch.clone();
 
-                // web_sys::console::log_1(&format!("Selected working directory: {}", dir).into());
-                
-                // Navigate back to the Workspace page
-                navigator.push(&Route::Workspace);
-            }
+        Callback::from(move |_| {
+            let working_dir = working_dir.clone();
+            let navigator = navigator.clone();
+            let dispatch = dispatch.clone();
+            
+            spawn_local(async move {
+                if let Some(dir) = (*working_dir).clone() {
+                    // Store the selected directory in local storage
+                    if let Some(window) = window() {
+                        if let Ok(Some(local_storage)) = window.local_storage() {
+                            let _ = local_storage.set_item("working_directory", &dir);
+                        }
+                    }
+                    set_path(dir.clone(), dispatch);
+    
+                    web_sys::console::log_1(&format!("Selected working directory: {}", dir.clone()).into());
+                    match invoke_tauri_command("create_init_file", &CreateInitFileParams { folder_name: dir.clone() }) {
+                        Ok(response) => {
+                            if let Some(response_str) = response.as_string() {
+                                console::log_1(&format!("Init file created: {}", response_str).into());
+                            } else {
+                                console::log_1(&"Init file created, but response was not a string".into());
+                            }
+                        },
+                        Err(e) => {
+                            console::error_1(&format!("Failed to create init file: {:?}", e).into());
+                        }
+                    };
+                    // Navigate back to the Workspace page
+                    navigator.push(&Route::Workspace);
+                }
+            });
         })
     };
 
