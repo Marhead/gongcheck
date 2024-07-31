@@ -28,13 +28,17 @@ pub async fn select_directory() -> Result<Option<String>, String> {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn create_init_file(folder_name: serde_json::Value) -> Result<String, String> {
+pub async fn create_init_file(folder_name: String) -> Result<String, String> {
+    let folder_name: serde_json::Value = serde_json::from_str(&folder_name).map_err(|e| e.to_string())?;
     let home_dir = dirs::home_dir().ok_or_else(|| "Unable to get home directory".to_string())?;
 
-    let input_data = serde_json::from_value(folder_name).map_err(|e| e.to_string())?;
+    // Extract the folder_name from the JSON object
+    let folder_name_str = folder_name.get("folder_name")
+    .and_then(|v| v.as_str())
+    .ok_or_else(|| "Invalid folder_name".to_string())?;
 
     // Construct the save path manually
-    let save_path = home_dir.join(format!("{}.json", input_data.folder_name));
+    let save_path = home_dir.join(format!("{}.json", folder_name_str));
 
     // Check if the file already exists using Rust's standard library
     if save_path.exists() {
