@@ -2,7 +2,14 @@ use wasm_bindgen::{JsValue, JsCast};
 use web_sys::window;
 use js_sys::{Object, Function, Promise, Reflect};
 use serde::Serialize;
+use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
+    pub async fn invoke(cmd: &str, args: JsValue) -> JsValue;
+}
 
 pub async fn invoke_tauri_command_async<T: Serialize>(cmd: &str, args: &T) -> Result<JsValue, JsValue> {
     let window = window().ok_or_else(|| JsValue::from_str("No window object found"))?;

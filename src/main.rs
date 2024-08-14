@@ -8,23 +8,10 @@ use yew_router::prelude::*;
 use yewdux::prelude::*;
 use crate::pages::welcome::DirectoryStore;
 
+use utils::tauri_invoke::invoke;
 use pages::welcome::Welcome;
 use pages::workspace::Workspace;
 use pages::Route;
-
-#[wasm_bindgen]
-extern "C" {
-    pub type FileSystemDirectoryHandle;
-
-    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
-    fn select_directory() -> JsValue;
-}
-
-#[wasm_bindgen(module = "/public/glue.js")]
-extern "C" {
-    #[wasm_bindgen(js_name = invokeInitFile, catch)]
-    pub async fn create_init_file(folder_name: JsValue) -> Result<JsValue, JsValue>;
-}
 
 // Yewdux is only working with function components.
 // So make "Wrapper" for class components and return it.
