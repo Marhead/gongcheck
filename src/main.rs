@@ -2,13 +2,12 @@ pub mod pages;
 pub mod components;
 pub mod utils;
 
-use wasm_bindgen::prelude::*;
 use yew::prelude::*;
 use yew_router::prelude::*;
 use yewdux::prelude::*;
 use crate::pages::welcome::DirectoryStore;
 
-use utils::tauri_invoke::invoke;
+use utils::tauri_invoke::*;
 use pages::welcome::Welcome;
 use pages::workspace::Workspace;
 use pages::Route;

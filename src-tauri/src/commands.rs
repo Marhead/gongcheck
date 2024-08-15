@@ -18,6 +18,7 @@ pub async fn select_directory() -> Result<Option<String>, String> {
     //     .set_directory(home_dir)
     //     .pick_folder()
     //     .and_then(|path_buf| path_buf.to_str().map(String::from))
+
     let home_dir = dirs::home_dir().ok_or("Failed to get home directory")?;
     let selected_path = FileDialogBuilder::new()
         .set_directory(home_dir)

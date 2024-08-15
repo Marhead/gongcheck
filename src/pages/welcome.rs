@@ -6,7 +6,8 @@ use wasm_bindgen::{JsValue, JsCast};
 use web_sys::{window, console};
 use js_sys::{Reflect, Promise};
 use wasm_bindgen_futures::JsFuture;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
+use serde_wasm_bindgen::to_value;
 use crate::utils::tauri_invoke::*;
 use crate::Route;
 
@@ -20,11 +21,15 @@ struct CreateInitFileParams {
     folder_name: String,
 }
 
+// Yewdux is only working with function components.
+// So make "Wrapper" for class components and return it.
+// Yewdux storing data method.
 pub fn set_path(path: String, dispatch: Dispatch<DirectoryStore>) {
     dispatch.reduce_mut(move |store| {
         store.path = path;
     })
 }
+
 
 fn is_tauri() -> bool {
     let window = match window() {
@@ -43,14 +48,15 @@ fn is_tauri() -> bool {
     false
 }
 
+
 async fn select_directory_tauri() -> Result<Option<String>, JsValue> {
     let window = window().ok_or_else(|| JsValue::from_str("Window object is not available"))?;
     
-    // Try to use showDirectoryPicker if available. Windows & Web
+    // Try to use showDirectoryPicker if available. ex) Windows & Web
     if Reflect::has(&window, &"showDirectoryPicker".into())? {
         let picker = Reflect::get(&window, &"showDirectoryPicker".into())?
             .dyn_into::<js_sys::Function>()?;
-
+d
         let promise = picker.call0(&JsValue::NULL)?
             .dyn_into::<Promise>()?;
 
@@ -60,13 +66,19 @@ async fn select_directory_tauri() -> Result<Option<String>, JsValue> {
         
         return Ok(Some(name.as_string().unwrap_or_default()));
     }
+
+    // Fallback to Tauri's native dialog. ex) MacOS
+    // Call the `invoke` method if `showDirectoryPicker` is not available
+    let response = invoke_without_args("select_directory").await;
     
-    // Fallback to Tauri's native dialog. Mac OS
-    match invoke_tauri_command_async("select_directory", &()).await {
-        Ok(response) => Ok(response.as_string()),
-        Err(e) => Err(JsValue::from_str(&format!("Failed to select directory: {:?}", e))),
+    // Handle the response
+    if response.is_undefined() || response.is_null() {
+        Err(JsValue::from_str(&format!("Failed to select directory: {:?}", response)))
+    } else {
+        Ok(Some(response.as_string().unwrap_or_default()))
     }
 }
+
 
 async fn select_directory_web() -> Result<Option<String>, JsValue> {
     console::log_1(&"Entering select_directory_web".into());
@@ -100,6 +112,7 @@ async fn select_directory_web() -> Result<Option<String>, JsValue> {
     }
 }
 
+
 async fn select_directory() -> Result<Option<String>, JsValue> {
     if is_tauri() {
         select_directory_tauri().await
@@ -110,6 +123,7 @@ async fn select_directory() -> Result<Option<String>, JsValue> {
 
 #[function_component(Welcome)]
 pub fn welcome() -> Html {
+
     let working_dir = use_state(|| None::<String>);
     let error = use_state(|| None::<String>);
     let (_store, dispatch) = use_store::<DirectoryStore>();
@@ -162,18 +176,21 @@ pub fn welcome() -> Html {
                     set_path(dir.clone(), dispatch);
     
                     web_sys::console::log_1(&format!("Selected working directory: {}", dir.clone()).into());
-                    match invoke_tauri_command("create_init_file", &CreateInitFileParams { folder_name: dir.clone() }) {
-                        Ok(response) => {
-                            if let Some(response_str) = response.as_string() {
-                                console::log_1(&format!("Init file created: {}", response_str).into());
-                            } else {
-                                console::log_1(&"Init file created, but response was not a string".into());
-                            }
-                        },
-                        Err(e) => {
-                            console::error_1(&format!("Failed to create init file: {:?}", e).into());
-                        }
-                    };
+                    
+                    invoke("create_init_file", &CreateInitFileParams { folder_name: dir.clone() }).await;
+
+                    // match invoke("create_init_file", &CreateInitFileParams { folder_name: dir.clone() }) {
+                    //     Ok(response) => {
+                    //         if let Some(response_str) = response.as_string() {
+                    //             console::log_1(&format!("Init file created: {}", response_str).into());
+                    //         } else {
+                    //             console::log_1(&"Init file created, but response was not a string".into());
+                    //         }
+                    //     },
+                    //     Err(e) => {
+                    //         console::error_1(&format!("Failed to create init file: {:?}", e).into());
+                    //     }
+                    // };
                     // Navigate back to the Workspace page
                     navigator.push(&Route::Workspace);
                 }
