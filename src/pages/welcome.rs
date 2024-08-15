@@ -16,6 +16,7 @@ pub struct DirectoryStore {
     pub path: String,
 }
 
+
 #[derive(Serialize)]
 struct CreateInitFileParams {
     folder_name: String,
@@ -56,7 +57,7 @@ async fn select_directory_tauri() -> Result<Option<String>, JsValue> {
     if Reflect::has(&window, &"showDirectoryPicker".into())? {
         let picker = Reflect::get(&window, &"showDirectoryPicker".into())?
             .dyn_into::<js_sys::Function>()?;
-d
+
         let promise = picker.call0(&JsValue::NULL)?
             .dyn_into::<Promise>()?;
 
@@ -123,7 +124,6 @@ async fn select_directory() -> Result<Option<String>, JsValue> {
 
 #[function_component(Welcome)]
 pub fn welcome() -> Html {
-
     let working_dir = use_state(|| None::<String>);
     let error = use_state(|| None::<String>);
     let (_store, dispatch) = use_store::<DirectoryStore>();
@@ -174,23 +174,13 @@ pub fn welcome() -> Html {
                         }
                     }
                     set_path(dir.clone(), dispatch);
-    
-                    web_sys::console::log_1(&format!("Selected working directory: {}", dir.clone()).into());
-                    
-                    invoke("create_init_file", &CreateInitFileParams { folder_name: dir.clone() }).await;
 
-                    // match invoke("create_init_file", &CreateInitFileParams { folder_name: dir.clone() }) {
-                    //     Ok(response) => {
-                    //         if let Some(response_str) = response.as_string() {
-                    //             console::log_1(&format!("Init file created: {}", response_str).into());
-                    //         } else {
-                    //             console::log_1(&"Init file created, but response was not a string".into());
-                    //         }
-                    //     },
-                    //     Err(e) => {
-                    //         console::error_1(&format!("Failed to create init file: {:?}", e).into());
-                    //     }
-                    // };
+                    web_sys::console::log_1(&format!("Selected working directory: {}", dir.clone()).into());
+
+                    let params = CreateInitFileParams { folder_name: dir.clone() };
+                    let args = serde_wasm_bindgen::to_value(&params).unwrap();
+                    invoke("create_init_file", args).await;
+
                     // Navigate back to the Workspace page
                     navigator.push(&Route::Workspace);
                 }
