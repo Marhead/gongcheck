@@ -34,7 +34,7 @@ pub async fn create_init_file(folder_name: String) -> Result<String, String> {
     }
 
     // Construct the save path manually
-    let save_path = folder_path.join(format!("{}.json", folder_name));
+    let save_path = folder_path.join(format!("config.json"));
 
     // Check if the file already exists using Rust's standard library
     if save_path.exists() {
@@ -57,5 +57,5 @@ pub async fn create_init_file(folder_name: String) -> Result<String, String> {
     // Write the serialized JSON string to the save path using Rust's standard library
     fs::write(&save_path, json_string).map_err(|e| e.to_string())?;
 
-    Ok("Init file created".to_string())
+    Ok("Init file created: ".to_string() + &save_path.to_string_lossy())
 }

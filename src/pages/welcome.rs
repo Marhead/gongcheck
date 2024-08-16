@@ -11,6 +11,8 @@ use serde_wasm_bindgen::to_value;
 use crate::utils::tauri_invoke::*;
 use crate::Route;
 
+
+// This struct is assigned in Yewdux store.
 #[derive(Default, Clone, PartialEq, Store)]
 pub struct DirectoryStore {
     pub path: String,
@@ -51,25 +53,6 @@ fn is_tauri() -> bool {
 
 
 async fn select_directory_tauri() -> Result<Option<String>, JsValue> {
-    let window = window().ok_or_else(|| JsValue::from_str("Window object is not available"))?;
-    
-    // Try to use showDirectoryPicker if available. ex) Windows & Web
-    if Reflect::has(&window, &"showDirectoryPicker".into())? {
-        let picker = Reflect::get(&window, &"showDirectoryPicker".into())?
-            .dyn_into::<js_sys::Function>()?;
-
-        let promise = picker.call0(&JsValue::NULL)?
-            .dyn_into::<Promise>()?;
-
-        let handle = JsFuture::from(promise).await?;
-        
-        let name = Reflect::get(&handle, &"name".into())?;
-        
-        return Ok(Some(name.as_string().unwrap_or_default()));
-    }
-
-    // Fallback to Tauri's native dialog. ex) MacOS
-    // Call the `invoke` method if `showDirectoryPicker` is not available
     let response = invoke_without_args("select_directory").await;
     
     // Handle the response
@@ -87,9 +70,7 @@ async fn select_directory_web() -> Result<Option<String>, JsValue> {
     let window = window().unwrap();
     
     // Check if showDirectoryPicker is available
-    if js_sys::Reflect::has(&window, &"showDirectoryPicker".into())? {
-        console::log_1(&"showDirectoryPicker is available".into());
-        
+    if js_sys::Reflect::has(&window, &"showDirectoryPicker".into())? {        
         let picker = js_sys::Reflect::get(&window, &"showDirectoryPicker".into())?
             .dyn_into::<js_sys::Function>()?;
 
