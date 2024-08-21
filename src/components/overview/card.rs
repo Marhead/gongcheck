@@ -1,4 +1,5 @@
 use yew::prelude::*;
+use crate::components::overview::modal::Modal;
 
 #[derive(Properties, PartialEq)]
 pub struct OverviewCardProps {
@@ -7,6 +8,15 @@ pub struct OverviewCardProps {
 
 #[function_component(OverviewCard)]
 pub fn overview_card(props: &OverviewCardProps) -> Html {
+    let modal_visible = use_state(|| false);
+
+    let toggle_modal = {
+        let modal_visible = modal_visible.clone();
+        Callback::from(move |_| {
+            modal_visible.set(!*modal_visible);
+        })
+    };
+
     html! {
         <div class="flex flex-col m-2 p-2 border-2">
             <div class="flex justify-between">
@@ -14,12 +24,15 @@ pub fn overview_card(props: &OverviewCardProps) -> Html {
                 <div>
                     <button class="m-2">{ "Grid" }</button>
                     <button class="m-2">{ "List"} </button>
-                    <button class="m-2">{ "+" }</button>
+                    <button class="m-2" onclick={toggle_modal.clone()}>{ "+" }</button>
                 </div>
             </div>
             <div class="border-1">
                 { "This is the overview page" }
             </div>
+            if *modal_visible {
+                <Modal on_close={toggle_modal.clone()} />
+            }
         </div>
     }
 }
