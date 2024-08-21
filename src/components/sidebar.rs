@@ -1,4 +1,3 @@
-use std::path::Path;
 use yew::prelude::*;
 use web_sys::console;
 
@@ -26,13 +25,13 @@ pub fn sidebar(props: &SidebarProps) -> Html {
     console::log_1(&format!("Sidebar loaded: {}", props.root_path).into());
 
     let project_name = props.root_path
-        .replace('\\', "/")  // Replace backslashes with forward slashes
+        .replace('\\', "/")  // Replace backslashes with forward slashes for windows.
         .split('/')
         .last()
         .unwrap_or("Default")
         .to_string();
 
-    console::log_1(&format!("Project name: {}", project_name).into());
+    console::log_1(&format!("Project name {}", project_name).into());
 
     html! {
         <div class="flex flex-col w-48">
