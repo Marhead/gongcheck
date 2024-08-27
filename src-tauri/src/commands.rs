@@ -29,7 +29,7 @@ pub async fn create_init_file(folder_name: String) -> Result<String, String> {
     if !folder_path.exists() {
         fs::create_dir_all(&folder_path).map_err(|e| e.to_string())?;
     }
-    
+
     // Generate the folders
     let folders = vec![
         "character", "item", "location", "culture", "discovery", "note", "organization", "place", "relation", "specy", "story"
@@ -40,23 +40,39 @@ pub async fn create_init_file(folder_name: String) -> Result<String, String> {
         fs::create_dir(&folder_path).map_err(|e| e.to_string())?;
     }
 
-    // Construct the "config.json" file manually
-    let save_path = folder_path.join(format!("config.json"));
-
-    // Check if the file already exists using Rust's standard library
-    if save_path.exists() {
-        return Err("Init file already exists".to_string());
-    }
-
     // 현재 시간 입력
     let current_time = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map_err(|e| e.to_string())?
         .as_secs();
 
+    // Construct the "config.json" file manually
+    let save_path = folder_path.join(format!("config.json"));
+
+    // Check if the file already exists using Rust's standard library
+    if save_path.exists() {
+        // Read the existing JSON content from the file
+        let existing_content = fs::read_to_string(&save_path).map_err(|e| e.to_string())?;
+
+        // Parse the existing JSON content into a serde_json::Value
+        let mut json_value: serde_json::Value = serde_json::from_str(&existing_content).map_err(|e| e.to_string())?;
+
+        // Update the "updated_at" field with the current time
+        json_value["updated_at"] = json!(current_time);
+
+        // Serialize the updated JSON content to a pretty string
+        let updated_json_string = to_string_pretty(&json_value).map_err(|e| e.to_string())?;
+
+        // Write the updated JSON string back to the file
+        fs::write(&save_path, updated_json_string).map_err(|e| e.to_string())?;
+
+        return Ok("Init file updated: ".to_string() + &save_path.to_string_lossy());
+    }
+
     let json_content = json!({
         "name": folder_name,
         "created_at": current_time,
+        "updated_at": current_time,
     });
     
     // Serialize the JSON content to a pretty string
