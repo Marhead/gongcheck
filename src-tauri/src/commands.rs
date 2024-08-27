@@ -37,7 +37,9 @@ pub async fn create_init_file(folder_name: String) -> Result<String, String> {
 
     for folder in folders {
         let folder_path = folder_path.join(folder);
-        fs::create_dir(&folder_path).map_err(|e| e.to_string())?;
+        if !folder_path.exists() {
+            fs::create_dir(&folder_path).map_err(|e| e.to_string())?;
+        }
     }
 
     // 현재 시간 입력
