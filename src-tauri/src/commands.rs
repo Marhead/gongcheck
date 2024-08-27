@@ -29,6 +29,16 @@ pub async fn create_init_file(folder_name: String) -> Result<String, String> {
     if !folder_path.exists() {
         fs::create_dir_all(&folder_path).map_err(|e| e.to_string())?;
     }
+    
+    // Generate the folders
+    let folders = vec![
+        "character", "item", "location", "culture", "discovery", "note", "organization", "place", "relation", "specy", "story"
+    ];
+
+    for folder in folders {
+        let folder_path = folder_path.join(folder);
+        fs::create_dir(&folder_path).map_err(|e| e.to_string())?;
+    }
 
     // Construct the "config.json" file manually
     let save_path = folder_path.join(format!("config.json"));
