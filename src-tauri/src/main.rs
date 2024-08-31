@@ -3,6 +3,8 @@
 
 mod commands;
 use commands::*;
+use serde_json::Value;
+use std::fs;
 use tauri::Manager;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -10,12 +12,29 @@ use tauri::Manager;
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
-            // Load the last viewed directory path when the application starts
-            let config = Config::load();
-            if let Some(root_path) = config.root_path {
-                println!("Root path: {}", root_path);
-                // You can add code here to use the root_path in your application
+            // Define the path to the config file in the home directory
+            let home_dir = dirs::home_dir().ok_or("Failed to get home directory")?;
+            println!("Home directory: {:?}", home_dir);
+            let config_path = home_dir.join("config.json");
+
+            // Read the config file if it exists
+            let config: Value = if config_path.exists() {
+                let config_content = fs::read_to_string(&config_path).unwrap_or_default();
+                serde_json::from_str(&config_content).unwrap_or_default()
+            } else {
+                serde_json::json!({})
+            };
+
+            // Determine the initial route based on the config
+            if let Some(last_project_path) = config.get("last_project_path").and_then(|v| v.as_str()) {
+                println!("Last project path: {}", last_project_path);
+                // Emit an event to set the initial route to Overview with the last_project_path
+                app.emit_all("set_initial_route", ("overview", last_project_path)).unwrap();
+            } else {
+                // Emit an event to set the initial route to Welcome
+                app.emit_all("set_initial_route", "welcome").unwrap();
             }
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

@@ -6,37 +6,6 @@ use serde_json::{json, to_string_pretty};
 use tauri::api::dialog::blocking::*;
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize, Default)]
-pub struct Config {
-    pub root_path: Option<String>,
-}
-
-impl Config {
-    pub fn load() -> Self {
-        let config_path = Config::config_path();
-        if config_path.exists() {
-            let config_content = fs::read_to_string(config_path).unwrap_or_default();
-            serde_json::from_str(&config_content).unwrap_or_default()
-        } else {
-            Config { root_path: None }
-        }
-    }
-
-    fn save(&self) {
-        let config_path = Config::config_path();
-        let config_content = serde_json::to_string_pretty(self).unwrap();
-        fs::write(config_path, config_content).unwrap();
-    }
-
-    fn config_path() -> std::path::PathBuf {
-        let mut config_dir = dirs::config_dir().unwrap();
-        config_dir.push("my_tauri_app");
-        fs::create_dir_all(&config_dir).unwrap();
-        config_dir.push("config.json");
-        config_dir
-    }
-}
-
 #[tauri::command]
 pub async fn select_directory() -> Result<Option<String>, String> {
     // home_directory를 우선 불러온다.
@@ -44,15 +13,29 @@ pub async fn select_directory() -> Result<Option<String>, String> {
 
     // FileDialogBuilder를 이용하여 폴더 선택 다이얼로그를 띄운다.
     let selected_path = FileDialogBuilder::new()
-        .set_directory(home_dir)
+        .set_directory(&home_dir)
         .pick_folder()
         .and_then(|path_buf| path_buf.to_str().map(String::from)); // PathBuf를 String으로 변환한다.
 
-    if let Some(ref path) = selected_path {
-        let mut config = Config::load();
-        config.root_path = Some(path.clone());
-        config.save();
-    }
+        if let Some(ref path) = selected_path {
+            // Define the path to the config file in the home directory
+            let config_path = home_dir.join("config.json");
+    
+            // Read the existing config file or create a new one
+            let mut config: serde_json::Value = if config_path.exists() {
+                let config_content = fs::read_to_string(&config_path).unwrap_or_default();
+                serde_json::from_str(&config_content).unwrap_or_default()
+            } else {
+                serde_json::json!({})
+            };
+    
+            // Set the last_project_path field
+            config["last_project_path"] = serde_json::json!(path);
+    
+            // Write the updated config back to the file
+            let config_content = serde_json::to_string_pretty(&config).unwrap();
+            fs::write(config_path, config_content).unwrap();
+        }
 
     Ok(selected_path)
 }
