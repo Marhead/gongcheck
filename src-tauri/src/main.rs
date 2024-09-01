@@ -15,18 +15,19 @@ fn main() {
             // Define the path to the config file in the home directory
             let home_dir = dirs::home_dir().ok_or("Failed to get home directory")?;
             println!("Home directory: {:?}", home_dir);
-            let config_path = home_dir.join("config.json");
+            let gongcheck_dir = home_dir.join("Gongcheck");
+            let settings_path = gongcheck_dir.join("settings.json");
 
             // Read the config file if it exists
-            let config: Value = if config_path.exists() {
-                let config_content = fs::read_to_string(&config_path).unwrap_or_default();
-                serde_json::from_str(&config_content).unwrap_or_default()
+            let settings: Value = if settings_path.exists() {
+                let settings_content = fs::read_to_string(&settings_path).unwrap_or_default();
+                serde_json::from_str(&settings_content).unwrap_or_default()
             } else {
                 serde_json::json!({})
             };
 
             // Determine the initial route based on the config
-            if let Some(last_project_path) = config.get("last_project_path").and_then(|v| v.as_str()) {
+            if let Some(last_project_path) = settings.get("last_project_path").and_then(|v| v.as_str()) {
                 println!("Last project path: {}", last_project_path);
                 // Emit an event to set the initial route to Overview with the last_project_path
                 app.emit_all("set_initial_route", ("overview", last_project_path)).unwrap();

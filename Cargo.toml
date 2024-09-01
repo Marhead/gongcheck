@@ -16,6 +16,7 @@ console_error_panic_hook = "0.1.7"
 gongcheck-editor = "0.1.2"
 yewdux = "0.10.0"
 yew-router = "0.18.0"
+gloo-events = "0.2.0"
 
 [workspace]
 members = ["src-tauri"]

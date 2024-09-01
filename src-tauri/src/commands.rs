@@ -11,6 +11,13 @@ pub async fn select_directory() -> Result<Option<String>, String> {
     // home_directory를 우선 불러온다.
     let home_dir = dirs::home_dir().ok_or("Failed to get home directory")?;
 
+    let gongcheck_dir = home_dir.join("Gongcheck");
+
+    // Ensure the Gongcheck directory exists or create it if it doesn't
+    if !gongcheck_dir.exists() {
+        fs::create_dir_all(&gongcheck_dir).map_err(|e| e.to_string())?;
+    }
+
     // FileDialogBuilder를 이용하여 폴더 선택 다이얼로그를 띄운다.
     let selected_path = FileDialogBuilder::new()
         .set_directory(&home_dir)
@@ -18,25 +25,24 @@ pub async fn select_directory() -> Result<Option<String>, String> {
         .and_then(|path_buf| path_buf.to_str().map(String::from)); // PathBuf를 String으로 변환한다.
 
         if let Some(ref path) = selected_path {
-            // Define the path to the config file in the home directory
-            let config_path = home_dir.join("config.json");
-    
-            // Read the existing config file or create a new one
-            let mut config: serde_json::Value = if config_path.exists() {
-                let config_content = fs::read_to_string(&config_path).unwrap_or_default();
-                serde_json::from_str(&config_content).unwrap_or_default()
+            // Define the path to the settings file in the Gongcheck directory
+            let settings_path = gongcheck_dir.join("settings.json");
+
+            // Read the existing settings file or create a new one
+            let mut settings: serde_json::Value = if settings_path.exists() {
+                let settings_content = fs::read_to_string(&settings_path).unwrap_or_default();
+                serde_json::from_str(&settings_content).unwrap_or_default()
             } else {
                 serde_json::json!({})
             };
-    
-            // Set the last_project_path field
-            config["last_project_path"] = serde_json::json!(path);
-    
-            // Write the updated config back to the file
-            let config_content = serde_json::to_string_pretty(&config).unwrap();
-            fs::write(config_path, config_content).unwrap();
-        }
 
+            // Set the last_project_path field
+            settings["last_project_path"] = serde_json::json!(path);
+
+            // Write the updated settings back to the file
+            let settings_content = serde_json::to_string_pretty(&settings).unwrap();
+            fs::write(&settings_path, settings_content).map_err(|e| e.to_string())?;
+        }
     Ok(selected_path)
 }
 
